@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { ArkaiosPanel } from './ArkaiosPanel';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -58,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
       const fileContent = editor.document.getText();
-      const fileName = editor.document.fileName.split('/').pop() || 'archivo';
+      const fileName = path.basename(editor.document.fileName) || 'archivo';
       const lang = editor.document.languageId;
       ArkaiosPanel.createOrShow(context, undefined, {
         fileName,

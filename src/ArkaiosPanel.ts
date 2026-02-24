@@ -1,20 +1,33 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+type FileContext = {
+    fileName: string;
+    language: string;
+    content: string;
+};
+
 export class ArkaiosPanel {
     public static currentPanel: ArkaiosPanel | undefined;
     private static readonly viewType = 'arkaiosChat';
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionUri: vscode.Uri;
     private _disposables: vscode.Disposable[] = [];
+    private _initialPrompt?: string;
+    private _fileContext?: FileContext;
 
-    public static createOrShow(extensionUri: vscode.Uri) {
+    public static createOrShow(
+        context: vscode.ExtensionContext,
+        initialPrompt?: string,
+        fileContext?: FileContext
+    ) {
         const column = vscode.window.activeTextEditor
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
 
         if (ArkaiosPanel.currentPanel) {
             ArkaiosPanel.currentPanel._panel.reveal(column);
+            ArkaiosPanel.currentPanel._setInitialData(initialPrompt, fileContext);
             return;
         }
 
@@ -24,18 +37,26 @@ export class ArkaiosPanel {
             column || vscode.ViewColumn.One,
             {
                 enableScripts: true,
-                localResourceRoots: [vscode.Uri.file(path.join(extensionUri.fsPath, 'media'))]
+                localResourceRoots: [vscode.Uri.file(path.join(context.extensionUri.fsPath, 'media'))]
             }
         );
 
-        ArkaiosPanel.currentPanel = new ArkaiosPanel(panel, extensionUri);
+        ArkaiosPanel.currentPanel = new ArkaiosPanel(panel, context.extensionUri, initialPrompt, fileContext);
     }
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+    private constructor(
+        panel: vscode.WebviewPanel,
+        extensionUri: vscode.Uri,
+        initialPrompt?: string,
+        fileContext?: FileContext
+    ) {
         this._panel = panel;
         this._extensionUri = extensionUri;
+        this._initialPrompt = initialPrompt;
+        this._fileContext = fileContext;
 
         this._update();
+        this._sendInitialData();
 
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
@@ -54,6 +75,23 @@ export class ArkaiosPanel {
 
     private async _handleChat(text: string) {
         this._panel.webview.postMessage({ command: 'response', text: `Analizando: ${text}... (Native API logic)` });
+    }
+
+    private _setInitialData(initialPrompt?: string, fileContext?: FileContext) {
+        this._initialPrompt = initialPrompt;
+        this._fileContext = fileContext;
+        this._sendInitialData();
+    }
+
+    private _sendInitialData() {
+        if (!this._initialPrompt && !this._fileContext) {
+            return;
+        }
+        this._panel.webview.postMessage({
+            command: 'seed',
+            prompt: this._initialPrompt || '',
+            context: this._fileContext || null
+        });
     }
 
     public dispose() {
@@ -110,6 +148,15 @@ export class ArkaiosPanel {
                         const message = event.data;
                         if (message.command === 'response') {
                             appendMsg('ai', 'ARKAIOS: ' + message.text);
+                        }
+                        if (message.command === 'seed') {
+                            if (message.context) {
+                                appendMsg('ai', 'Contexto cargado: ' + message.context.fileName + ' (' + message.context.language + ')');
+                            }
+                            if (message.prompt) {
+                                input.value = message.prompt;
+                                input.focus();
+                            }
                         }
                     });
 

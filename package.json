@@ -1,0 +1,96 @@
+{
+  "name": "arkaios-lab",
+  "displayName": "ARKAIOS Lab",
+  "description": "ARKAIOS AI assistant for VSCode - chat, code explain, refactor, and more",
+  "version": "1.0.0",
+  "publisher": "djklmr2025",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["AI", "Other"],
+  "icon": "media/icon.png",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "arkaios.openPanel",
+        "title": "ARKAIOS: Abrir Chat",
+        "icon": "$(robot)"
+      },
+      {
+        "command": "arkaios.explainCode",
+        "title": "ARKAIOS: Explicar codigo seleccionado"
+      },
+      {
+        "command": "arkaios.refactorCode",
+        "title": "ARKAIOS: Refactorizar codigo seleccionado"
+      },
+      {
+        "command": "arkaios.askWithContext",
+        "title": "ARKAIOS: Preguntar con contexto del archivo"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "arkaios.openPanel",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a"
+      },
+      {
+        "command": "arkaios.explainCode",
+        "key": "ctrl+shift+e",
+        "when": "editorHasSelection"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "arkaios.explainCode",
+          "when": "editorHasSelection",
+          "group": "arkaios@1"
+        },
+        {
+          "command": "arkaios.refactorCode",
+          "when": "editorHasSelection",
+          "group": "arkaios@2"
+        },
+        {
+          "command": "arkaios.askWithContext",
+          "group": "arkaios@3"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "arkaios.openPanel",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ARKAIOS Lab",
+      "properties": {
+        "arkaiosLab.proxyApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Tu PROXY_API_KEY de arkaios-service-proxy"
+        },
+        "arkaiosLab.proxyBaseUrl": {
+          "type": "string",
+          "default": "https://arkaios-service-proxy.onrender.com",
+          "description": "URL base del servicio proxy de ARKAIOS"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}

@@ -44,6 +44,12 @@ export class ArkaiosPanel {
         ArkaiosPanel.currentPanel = new ArkaiosPanel(panel, context.extensionUri, initialPrompt, fileContext);
     }
 
+    public static dispose() {
+        if (ArkaiosPanel.currentPanel) {
+            ArkaiosPanel.currentPanel.dispose();
+        }
+    }
+
     private constructor(
         panel: vscode.WebviewPanel,
         extensionUri: vscode.Uri,

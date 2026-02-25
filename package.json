@@ -4,6 +4,10 @@
   "description": "ARKAIOS AI assistant for VSCode - chat, code explain, refactor, and more",
   "version": "1.0.0",
   "publisher": "djklmr2025",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djklmr2025/arkaios-vscode.git"
+  },
   "engines": { "vscode": "^1.85.0" },
   "categories": ["AI", "Other"],
   "activationEvents": [],
